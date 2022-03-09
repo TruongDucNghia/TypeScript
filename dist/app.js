@@ -7,7 +7,7 @@ const c = false;
 const myName = "nghia duc truong";
 const me = {
     id: 1,
-    name: "Trương Đức Nghĩa",
+    name: "Trương Đức Nghĩa 123",
     age: 20,
     marriage: true
 };
