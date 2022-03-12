@@ -27,3 +27,13 @@ function myFunction(a: number, b: number): number{
 }
 console.log(myFunction(a, b));
 
+type Product = {
+    id: number,
+    name: string
+}
+const getProducts = <T extends Product>(products: T[]) =>{
+    const result = products
+    console.log(result);
+}
+getProducts([{id: 1, name: "NGHIA"}, {id: 2, name: "NHUNG"}])
+
