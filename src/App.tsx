@@ -1,46 +1,63 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom';
-import './App.css'
+import { Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import AboutPage from './pages/aboutPage';
 import ContactPage from './pages/contactPage';
-import HomePage from './pages/homePage';
 import ProductsPage from './pages/productsPage';
+import WebsiteLayout from './pages/layouts/WebsiteLayout';
+import HomePage from './pages/homePage';
+import AdminLayout from './pages/layouts/AdminLayout';
+import ProductManager from './pages/admin/ProductManager ';
+import { ProductType } from './pages/types/products';
+import { add, list, remove } from './api/products';
+import ProductsAdd from './pages/admin/ProductsAdd';
 
 
 function App() {
 
+  const [products, setProducts] = useState<ProductType[]>([])
+
+  useEffect(() =>{
+    const getProducts = async () =>{
+      const {data} = await list()
+      setProducts(data)
+    }
+    getProducts();
+  }, [])
+
+  const removeItem = (id) =>{
+    remove(id)
+
+    setProducts(products.filter(item => item.id !== id))
+  }
+
+  const onHandleAdd = (data) =>{
+    add(data)
+
+    setProducts([...products, data])
+  }
+  
+
   return (
     <div>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <a className="navbar-brand" href="#">React-TypeScript</a>
-        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item active">
-              <NavLink className="nav-link" to="/">Home</NavLink>
-            </li>
-            <li className="nav-item ">
-              <NavLink className="nav-link" to="/products">Products</NavLink>
-            </li>
-            <li className="nav-item ">
-              <NavLink className="nav-link" to="/about">About</NavLink>
-            </li>
-            <li className="nav-item ">
-              <NavLink className="nav-link" to="/contact">Contact</NavLink>
-            </li>
-          </ul>
-        </div>
-      </nav>
       <main>
         <Routes>
-          <Route path='/' element={<HomePage/>}/>
-          <Route path='/products' element={<ProductsPage/>}/>
-          <Route path='/about' element={<AboutPage/>}/>
-          <Route path='/contact' element={<ContactPage/>}/>
+          <Route path='/' element={<WebsiteLayout/>}>
+            <Route index element={<HomePage/>}/>
+            <Route path='/products' element={<ProductsPage/>}>
+              <Route index element={<ProductsPage />} />
+              <Route path=':id' element={<h1>product details</h1>} />
+            </Route>
+            <Route path='/about' element={<AboutPage/>}/>
+            <Route path='/contact' element={<ContactPage/>}/>
+          </Route>
+
+          <Route path='admin' element={<AdminLayout/>}>
+              <Route index element={<Navigate to="dashboard" />} />
+              <Route path="dashboard" element={<h1>Dashboard page</h1>} />
+              <Route path='/admin/products/add' element={<ProductsAdd onAdd={onHandleAdd} />} />
+              <Route path="/admin/products" element={<ProductManager products={products} onRemove={removeItem}/>} />
+          </Route>
         </Routes>
       </main>
     </div>
